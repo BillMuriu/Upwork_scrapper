@@ -179,11 +179,33 @@ else:
     activity_details = {}
     print("Client activity details not found.")
 
+def extract_hourly_rate(html):
+    soup = BeautifulSoup(html, "html.parser")
+
+    # Locate the hourly rate container
+    rate_container = soup.find("div", class_="d-flex", attrs={"data-v-1e9c74a8": True})
+    if not rate_container:
+        print("Debug: Rate container not found.")
+        return None
+
+    # Extract the rate parts
+    rate_parts = rate_container.find_all("strong", attrs={"data-v-8d6ae40e": True})
+    if len(rate_parts) == 2:
+        # Extract and clean both rates
+        min_rate = rate_parts[0].text.strip()
+        max_rate = rate_parts[1].text.strip()
+        return f"{min_rate} - {max_rate}"
+    else:
+        print("Debug: Unexpected rate format or missing rates.")
+        return None
+    
 # Extract client information
 client_info = extract_client_info(page_source)
 job_features = extract_job_details(page_source)
+hourly_rate = extract_hourly_rate(page_source)
 print("Client Information:", client_info)
 print("Job Features:", job_features)
+print("Hourly Rate:", hourly_rate)
 
 # Save the details to a CSV file
 output_file = "job_details.csv"
